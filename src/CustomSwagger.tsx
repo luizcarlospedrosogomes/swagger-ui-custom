@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import swaggerSpec from '../swagger.json';
+import swaggerSpec from './swagger.json';
 import 'swagger-ui-react/swagger-ui.css';
 import { EndpointList } from './EndpointList';
 import SchemaTable from './componentes/Properties';
 import RequestBodyViewer from './componentes/RequestBody';
 import ResponsesViewer from './componentes/ResponseBody';
 
-// ---------------- Painel principal ----------------
+
 export function CustomSwagger() {
     const [selected, setSelected] = useState(null);
 
@@ -46,7 +46,7 @@ export function CustomSwagger() {
 
                 {/* Parâmetros */}
                 {schema && schema.properties && (
-                     <SchemaTable schema={schema} />
+                     <SchemaTable schema={schema} operation={operation} path={path} method={method}  />
                 )}
 
                 {/* Request body */}
@@ -56,7 +56,7 @@ export function CustomSwagger() {
 
                 {/* Responses */}
                 {operation.responses && (
-                    <ResponsesViewer responses={operation.responses} />
+                    <ResponsesViewer spec={swaggerSpec} responses={operation.responses} />
                 )}
             </div>
         );

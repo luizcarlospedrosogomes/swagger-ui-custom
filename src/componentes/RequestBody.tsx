@@ -4,6 +4,9 @@ const RequestBodyViewer = ({ schemaRequest }) => {
   if (!schemaRequest) {
     return null; // Evita renderizar se não houver request body
   }
+  if(Object.keys(schemaRequest).length === 0){
+    return null; 
+  }
 
   return (
     <div>

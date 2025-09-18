@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import swaggerSpec from '../swagger.json';
+import swaggerSpec from './swagger.json';
 import 'swagger-ui-react/swagger-ui.css';
 
 // ---------------- Sidebar ----------------

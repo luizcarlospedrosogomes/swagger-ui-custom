@@ -1,39 +1,83 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useSwaggerServer } from "../SwaggerServerContext";
+interface SchemaProperty {
+  type: string;
+  minimum?: number;
+  example?: any;
+}
 
-const SchemaTable = ({ schema }) => {
-  if (!schema || !schema.properties) {
-    return null; // Evita erros se schema não estiver definido
-  }
+interface Schema {
+  properties: Record<string, SchemaProperty>;
+}
+
+const SchemaTable = ({ schema, operation, path, method }: { schema: Schema, operation: any, path: string, method: string }) => {
+  const initialState = Object.keys(schema.properties).reduce((acc, key) => {
+    const type = schema.properties[key].type;
+    acc[key] = type === 'boolean' ? false : '';
+    return acc;
+  }, {} as Record<string, any>);
+
+  const [q, setQ] = useState(initialState);
+  const [res, setRes] = useState<any>(null);
+
+   const { serverUrl } = useSwaggerServer();
+  if (!schema || !schema.properties) return null;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, type, value, checked } = e.target;
+    setQ(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios({
+      method,   // 'get', 'post', etc.
+      url: serverUrl+path, // ex: '/analysCode' ou qualquer path dinâmico
+      params: method.toLowerCase() === 'get' ? q : undefined, // query params para GET
+      data: method.toLowerCase() !== 'get' ? q : undefined   // corpo para POST/PUT
+    });
+      setRes(response.data);
+    } catch (err: any) {
+      setRes({ error: err?.message ?? 'Erro' });
+    }
+  };
 
   return (
     <div>
       <h3>Parâmetros</h3>
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            <th style={{ border: '1px solid #ddd', padding: '6px' }}>Nome</th>
-            <th style={{ border: '1px solid #ddd', padding: '6px' }}>Tipo</th>
-            <th style={{ border: '1px solid #ddd', padding: '6px' }}>Obrigatório</th>
-            <th style={{ border: '1px solid #ddd', padding: '6px' }}>Descrição</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(schema.properties).map(([name, prop]) => (
-            <tr key={name}>
-              <td style={{ border: '1px solid #ddd', padding: '6px' }}>{name}</td>
-              <td style={{ border: '1px solid #ddd', padding: '6px' }}>
-                {prop.type}{prop.maxLength ? `(${prop.maxLength})` : ''}
-              </td>
-              <td style={{ border: '1px solid #ddd', padding: '6px' }}>
-                {schema.required?.includes(name) ? 'Sim' : 'Não'}
-              </td>
-              <td style={{ border: '1px solid #ddd', padding: '6px' }}>
-                {prop.description || '-'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <form onSubmit={submit} style={{ display: 'grid', gap: 8, maxWidth: 520 }}>
+        {Object.entries(schema.properties).map(([name, prop]) => (
+          <div key={name} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <label htmlFor={name}>{name}</label>
+            {prop.type === 'boolean' ? (
+              <input
+                type="checkbox"
+                id={name}
+                name={name}
+                checked={q[name]}
+                onChange={handleChange}
+              />
+            ) : (
+              <input
+                type={prop.type === 'integer' ? 'number' : 'text'}
+                id={name}
+                name={name}
+                value={q[name]}
+                onChange={handleChange}
+                placeholder={name}
+              />
+            )}
+          </div>
+        ))}
+        <button type="submit">Enviar</button>
+      </form>
+
+      
     </div>
   );
 };
