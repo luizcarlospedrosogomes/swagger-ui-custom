@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import swaggerSpec from '../swagger.json';
 import 'swagger-ui-react/swagger-ui.css';
 import { EndpointList } from './EndpointList';
+import SchemaTable from './componentes/Properties';
+import RequestBodyViewer from './componentes/RequestBody';
+import ResponsesViewer from './componentes/ResponseBody';
 
 // ---------------- Painel principal ----------------
 export function CustomSwagger() {
@@ -14,7 +17,7 @@ export function CustomSwagger() {
 
         const { path, method } = selected;
         const operation = swaggerSpec.paths[path][method];
-        console.log(operation)
+    
         let ref = null;
         let schema = {}
         let schemaRequest = {}
@@ -43,59 +46,17 @@ export function CustomSwagger() {
 
                 {/* Parâmetros */}
                 {schema && schema.properties && (
-                    <div>
-                        <h3>Parâmetros</h3>
-                        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                            <thead>
-                                <tr>
-                                    <th style={{ border: '1px solid #ddd', padding: '6px' }}>Nome</th>
-                                    <th style={{ border: '1px solid #ddd', padding: '6px' }}>Tipo</th>
-                                    <th style={{ border: '1px solid #ddd', padding: '6px' }}>Obrigatório</th>
-                                    <th style={{ border: '1px solid #ddd', padding: '6px' }}>Descrição</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Object.entries(schema.properties).map(([name, prop]) => (
-                                    <tr key={name}>
-                                        <td style={{ border: '1px solid #ddd', padding: '6px' }}>{name}</td>
-                                        <td style={{ border: '1px solid #ddd', padding: '6px' }}>{prop.type}{prop.maxLength ? `(${prop.maxLength})` : ''}</td>
-                                        <td style={{ border: '1px solid #ddd', padding: '6px' }}>{schema.required?.includes(name) ? 'Sim' : 'Não'}</td>
-                                        <td style={{ border: '1px solid #ddd', padding: '6px' }}>{prop.description || '-'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                     <SchemaTable schema={schema} />
                 )}
 
                 {/* Request body */}
                 {schemaRequest && (
-                    <div>
-                        <h3>Request Body</h3>
-                        <pre style={{
-                            background: '#f6f8fa',
-                            padding: '10px',
-                            borderRadius: '4px',
-                            overflowX: 'auto'
-                        }}>
-                            {JSON.stringify(schemaRequest, null, 2)}
-                        </pre>
-                    </div>
+                     <RequestBodyViewer schemaRequest={schemaRequest} />
                 )}
 
                 {/* Responses */}
                 {operation.responses && (
-                    <div>
-                        <h3>Responses</h3>
-                        <pre style={{
-                            background: '#f6f8fa',
-                            padding: '10px',
-                            borderRadius: '4px',
-                            overflowX: 'auto'
-                        }}>
-                            {JSON.stringify(operation.responses, null, 2)}
-                        </pre>
-                    </div>
+                    <ResponsesViewer responses={operation.responses} />
                 )}
             </div>
         );
