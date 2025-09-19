@@ -1,22 +1,15 @@
 import React from 'react';
+import "./swaggerStyles.css"; // 👈 importa seu CSS global
 
 const RequestBodyViewer = ({ schemaRequest }) => {
-  if (!schemaRequest) {
-    return null; // Evita renderizar se não houver request body
-  }
-  if(Object.keys(schemaRequest).length === 0){
-    return null; 
+  if (!schemaRequest || Object.keys(schemaRequest).length === 0) {
+    return null;
   }
 
   return (
-    <div>
-      <h3>Request Body</h3>
-      <pre style={{
-        background: '#f6f8fa',
-        padding: '10px',
-        borderRadius: '4px',
-        overflowX: 'auto'
-      }}>
+    <div className="swagger-section">
+      <h3 className="swagger-section-title">Request Body</h3>
+      <pre className="swagger-code-block">
         {JSON.stringify(schemaRequest, null, 2)}
       </pre>
     </div>

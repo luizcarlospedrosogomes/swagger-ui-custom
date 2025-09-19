@@ -1,15 +1,16 @@
 import React from 'react';
+import "./swaggerStyles.css"; // 👈 reutiliza o mesmo CSS
 
 const ResponsesViewer = ({ spec, responses }) => {
   if (!responses) {
     return null; // Evita renderizar se não houver responses
   }
 
-  function findRefsWithKeys(o: any): Record<string, string[]> {
-    const result: Record<string, string[]> = {};
+  function findRefsWithKeys(o: any): Record<string, any[]> {
+    const result: Record<string, any[]> = {};
 
     for (const key in o) {
-      const refs = [];
+      const refs: any[] = [];
 
       function collectRefs(node: any) {
         if (typeof node === "object" && node !== null) {
@@ -33,33 +34,25 @@ const ResponsesViewer = ({ spec, responses }) => {
     return result;
   }
 
-  const refs = findRefsWithKeys(responses)
+  const refs = findRefsWithKeys(responses);
+
   for (const status in refs) {
     refs[status].forEach(ref => {
-      const refKey = ref.ref.split('/').pop();
-      ref['properties'] = spec.components.schemas[refKey].properties || {};
-
+      const refKey = ref.ref.split("/").pop();
+      ref["properties"] = spec.components.schemas[refKey]?.properties || {};
     });
   }
-  console.log(refs);
 
   return (
-    <div>
-      <h3>Responses</h3>
+    <div className="swagger-section">
+      <h3 className="swagger-section-title">Responses</h3>
       {Object.entries(refs).map(([status, refList]) => (
-        <div key={status} style={{ marginBottom: "1rem" }}>
-          <h4>Status {status}</h4>
+        <div key={status} className="swagger-subsection">
+          <h4 className="swagger-subsection-title">Status {status}</h4>
           {refList.map((refObj, i) => (
-            <div key={i} style={{ marginBottom: "0.5rem" }}>
-              <strong>{'$ref:'}</strong> {refObj.ref}
-              <pre
-                style={{
-                  background: "#f6f8fa",
-                  padding: "10px",
-                  borderRadius: "4px",
-                  overflowX: "auto",
-                }}
-              >
+            <div key={i} className="swagger-response-block">
+              <strong className="swagger-ref-label">$ref:</strong> {refObj.ref}
+              <pre className="swagger-code-block">
                 {JSON.stringify(refObj.properties, null, 2)}
               </pre>
             </div>

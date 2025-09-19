@@ -1,0 +1,45 @@
+.swagger-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr; /* 3 colunas */
+  height: 100vh;
+}
+
+/* Coluna genérica */
+.swagger-column {
+  border-right: 1px solid #eaecef;
+  padding: 16px;
+  overflow-y: auto;
+  background: #fff;
+}
+
+/* Coluna 1: lista de endpoints */
+.swagger-column.endpoints {
+  background: #f9f9f9;
+}
+
+/* Coluna 3: resultado das requisições */
+.swagger-column.results {
+  background: #f6f8fa;
+}
+
+
+.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 300px;
+}
+
+.login-page input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}

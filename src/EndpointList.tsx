@@ -6,7 +6,7 @@ import 'swagger-ui-react/swagger-ui.css';
 export function EndpointList({ onSelect }) {
   const [open, setOpen] = useState({});
 
-  const toggleOpen = (path) => {
+  const toggleOpen = (path: string) => {
     setOpen((prev) => ({
       ...prev,
       [path]: !prev[path]
@@ -16,7 +16,7 @@ export function EndpointList({ onSelect }) {
   const endpoints = Object.entries(swaggerSpec.paths)
 
   return (
-    <div style={{
+    <div className="swagger-ui" style={{
       width: '280px',
       borderRight: '1px solid #e1e4e8',
       padding: '10px 0',
@@ -48,8 +48,7 @@ export function EndpointList({ onSelect }) {
                 backgroundColor: open[path] ? '#eaf5ff' : 'transparent'
               }}
             >
-              {path}
-            </div>
+              {path}</div>
 
             {/* Métodos */}
             {open[path] && (
@@ -69,7 +68,7 @@ export function EndpointList({ onSelect }) {
                       cursor: 'pointer'
                     }}
                   >
-                    <span style={{
+                    <span  className="opblock-summary-method" style={{
                       display: 'inline-block',
                       minWidth: '50px',
                       fontWeight: 600,
