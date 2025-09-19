@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSwaggerServer } from "../context/SwaggerServerContext";
-import { read } from "../services/api";
+import { getData, read } from "../services/api";
 
 interface ApiFileSelectorProps {
     files: string[];
@@ -15,9 +15,9 @@ const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
 
         const fetchSchema = async () => {
             try {
-                const data = await read(`swagger-custom-files/file/${selectedFile}`);
-                setSchema(data);
-                const url = data.servers?.[0]?.url || "";
+                const response = await getData({ path: `swagger-custom-files/file/${selectedFile}`, params: {}});
+                setSchema(response.data);
+                const url = response.data.servers?.[0]?.url || "";
                 setServerUrl(url);
             } catch (err) {
                 console.error(err);

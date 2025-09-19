@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSwaggerServer } from "./context/SwaggerServerContext";
-import { read } from "./services/api";
+import { getData, read } from "./services/api";
 
 const SwaggerLoader: React.FC = () => {
   const { setFiles } = useSwaggerServer();;
@@ -9,8 +9,8 @@ const SwaggerLoader: React.FC = () => {
     const loadSwagger = async () => {
       try {
         // carrega o swagger.json do backend (pasta openapi)
-        const files = await read("swagger-custom-files/list");
-        setFiles(files);
+        const response = await getData({ path: "swagger-custom-files/list", params:{}});
+        setFiles(response.data);
     
       } catch (err) {
         console.error("Erro ao carregar Swagger spec:", err);
