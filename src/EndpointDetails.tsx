@@ -12,8 +12,18 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
             return <p>Selecione um método para ver os detalhes</p>;
         }
 
+        if (!swaggerSpec) {
+            return <p>Selecione uma arquivo</p>;
+        }
+
         const { path, method } = selected;
-        const operation = swaggerSpec.paths[path][method];
+        let operation = {}
+        try {
+            operation = swaggerSpec?.paths[path][method];
+        } catch (error) {
+            return <p>Selecione uma arquivo</p>;
+        }
+
 
         let ref = null;
         let schema = {}
@@ -40,18 +50,23 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
         if (Array.isArray(operation)) {
             operation.parameters = operation
         }
-        console.log("operation", operation)
         return (
             <div className={`opblock opblock-${method}`}>
                 {/* Cabeçalho resumido */}
                 <div className={`opblock-summary opblock-summary-${method}`}>
-                    <span className="opblock-summary-method">{method.toUpperCase()}</span>
-                    <span className="opblock-summary-path">{path}</span>
-                    {operation.summary && (
-                        <span className="opblock-summary-description">
-                            {operation.summary}
-                        </span>
-                    )}
+                    <button className=" btn execute opblock-control__btn opblock-summary-method">{method.toUpperCase()} </button>
+                    <div className="opblock-summary-path-description-wrapper">
+                        <span className="opblock-summary-path">{path}</span>
+                        {operation.summary && (
+                            <span className='opblock-summary-description'>
+                                {operation.summary}
+
+                            </span>
+
+                        )}
+                    </div>
+
+
                 </div>
 
                 {/* Corpo da operação */}

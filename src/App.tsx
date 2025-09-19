@@ -1,41 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import CustomSwagger from './CustomSwagger';
-import LoginPage from './LoginPage';
+import LoginPage from './Login/LoginPage';
 import 'swagger-ui-react/swagger-ui.css';
 
 export function App() {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<boolean>(
+  () => !!localStorage.getItem('jwtToken')
+);
 
-  // Verifica se existe um token JWT no localStorage ao montar o componente
   useEffect(() => {
-    const token = localStorage.getItem('jwtToken'); // ou o nome que você usa
-    if (token) {
-      console.log("token", token)
-      // Aqui você pode decodificar o token se quiser pegar o username ou apenas assumir que está logado
-      setToken(token); // substitua por algo do token se necessário
+    const storedToken = localStorage.getItem('jwtToken'); // ou o nome que você usa
+    if (storedToken) {
+      setToken(true); // substitua por algo do token se necessário
     }
   }, []);
 
-  const handleLogin = (token: string) => {
-    setToken(token)
-    
+  const handleLogin = (loginOk: boolean) => {
+    setToken(loginOk)
   };
 
+   console.log('Token atual:', token);
+  
   return (
-    <Router>
+    <Router basename="/swagger-custom">
       <Routes>
+        {/* Swagger protegido */}
+        <Route
+          path="/"
+          element={token ? <CustomSwagger /> : <Navigate to="/login" replace  />}
+        />
+
         {/* Página de login */}
         <Route
           path="/login"
           element={<LoginPage onLogin={handleLogin} />}
         />
 
-        {/* Swagger protegido */}
-        <Route
-          path="/"
-          element={token ? <CustomSwagger /> : <Navigate to="/login" />}
-        />
+        
       </Routes>
     </Router>
   );

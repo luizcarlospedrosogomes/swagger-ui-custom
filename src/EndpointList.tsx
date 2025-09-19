@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import swaggerSpec from './swagger.json';
+
 import 'swagger-ui-react/swagger-ui.css';
+import { useSwaggerServer } from './context/SwaggerServerContext';
 
 // ---------------- Sidebar ----------------
 export function EndpointList({ onSelect }) {
   const [open, setOpen] = useState({});
+  const { schema } = useSwaggerServer();
+  console.log(schema)
+  const swaggerSpec = schema;
 
   const toggleOpen = (path: string) => {
     setOpen((prev) => ({
@@ -12,11 +16,14 @@ export function EndpointList({ onSelect }) {
       [path]: !prev[path]
     }));
   };
-  console.log(swaggerSpec)
+ 
+  if(!swaggerSpec){
+    return 'Selecione uma API'
+  }
   const endpoints = Object.entries(swaggerSpec.paths)
 
   return (
-    <div className="swagger-ui" style={{
+    <div className="swagger-ui " style={{
       width: '280px',
       borderRight: '1px solid #e1e4e8',
       padding: '10px 0',
@@ -30,7 +37,7 @@ export function EndpointList({ onSelect }) {
         fontWeight: '600',
         color: '#323232'
       }}>
-        Endpoints analysCode ({endpoints.length})
+        Endpoints ({endpoints.length})
       </h3>
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {endpoints.map(([path, methods]) => (

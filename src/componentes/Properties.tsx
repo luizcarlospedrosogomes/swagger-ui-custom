@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useSwaggerServer } from "../SwaggerServerContext";
+import { useSwaggerServer } from "../context/SwaggerServerContext";
+import { getData, read } from '../services/api';
 
 interface SchemaProperty {
   type: string;
@@ -15,7 +15,11 @@ interface Schema {
 const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setApiResponse: any, schema: Schema, operation: any, path: string, method: string }) => {
   const initialState = Object.keys(schema.properties).reduce((acc, key) => {
     const type = schema.properties[key].type;
-    acc[key] = type === 'boolean' ? false : '';
+    const name = schema.properties[key].name
+    // Se o nome já começa com $, mantém; senão mantém como está
+    const paramName = name.startsWith('$') ? `$${key}` : key;
+
+    acc[paramName] = type === 'boolean' ? false : '';
     return acc;
   }, {} as Record<string, any>);
 
@@ -36,19 +40,18 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios({
-        method,   // 'get', 'post', etc.
-        url: serverUrl + path, // ex: '/analysCode' ou qualquer path dinâmico
-        params: method.toLowerCase() === 'get' ? q : undefined, // query params para GET
-        data: method.toLowerCase() !== 'get' ? q : undefined   // corpo para POST/PUT
-      });
+
+      const params = Object.fromEntries(
+        Object.entries(q).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      );
+      const response = await getData({ path: serverUrl + path, params })
+
       setApiResponse(response);
     } catch (error: any) {
       setApiResponse(error);
     }
   };
-  
-  console.log(schema.properties)
+
   return (
     <div className="swagger-ui">
       <div className="opblock-body">
@@ -62,17 +65,17 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
                 <input
                   type="checkbox"
                   id={name}
-                  name={name}
-                  checked={q[name]}
+                  name={prop.name}
+                  checked={q[prop.name]}
                   onChange={handleChange}
                 />
               ) : (
                 <input
                   type={prop.schema.type === 'integer' ? 'number' : 'text'}
                   id={name}
-                  name={name}
+                  name={prop.name}
                   onChange={handleChange}
-                  value={q[name] || prop.example}
+                  value={q[prop.name] || prop.example}
                   placeholder={name}
                 />
               )}

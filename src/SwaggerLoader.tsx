@@ -1,17 +1,26 @@
 import React, { useEffect } from "react";
-import swaggerSpec from "./swagger.json";
-import { useSwaggerServer } from "./SwaggerServerContext";
+import { useSwaggerServer } from "./context/SwaggerServerContext";
+import { read } from "./services/api";
 
-const SwaggerLoader = () => {
-  const { setServerUrl } = useSwaggerServer();
+const SwaggerLoader: React.FC = () => {
+  const { setFiles } = useSwaggerServer();;
 
   useEffect(() => {
-    // Pega o primeiro servidor do swagger.json
-    const url = swaggerSpec.servers?.[0]?.url || "";
-    setServerUrl(url);
-  }, [setServerUrl]);
+    const loadSwagger = async () => {
+      try {
+        // carrega o swagger.json do backend (pasta openapi)
+        const files = await read("swagger-custom-files/list");
+        setFiles(files);
+    
+      } catch (err) {
+        console.error("Erro ao carregar Swagger spec:", err);
+      }
+    };
 
-  return null; // apenas carrega os dados
+    loadSwagger();
+  }, [setFiles]);
+
+  return null; // só efeito colateral
 };
 
 export default SwaggerLoader;

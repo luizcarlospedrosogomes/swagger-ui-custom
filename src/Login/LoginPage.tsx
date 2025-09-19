@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './swaggerLayout.css'
-interface LoginPageProps {
-  onLogin: (username: string,) => void;
-}
+import './../swaggerLayout.css'
+import { create, read } from '../services/api';
+import { useSwaggerServer } from '../context/SwaggerServerContext';
 
+
+interface LoginPageProps {
+  onLogin: (loginOk: boolean) => void;
+}
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { config, setConfig } = useSwaggerServer()
+  useEffect(() => {
+  read('swagger-custom/swagger-custom-config.json')
+    .then(setConfig)
+    .catch(console.error);
+}, []);
 
+if (!config) return <div>Carregando...</div>;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     try {
       // Chama a API de login e recebe o token
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha na autenticação');
-      }
-
-      const data = await response.json();
-      const token = data.token; // supondo que a API retorne { token: '...' }
+      const response = await create( { path: config.loginUrl, data: JSON.stringify({ username, password })})
+      const token = response.data.access_token; // supondo que a API retorne { token: '...' }
 
       // Salva o token no localStorage
       localStorage.setItem('jwtToken', token);
 
       // Chama onLogin para atualizar o estado do App
-      onLogin(username, token);
+      onLogin(true);
 
       // Redireciona para o Swagger
       navigate('/');
@@ -44,12 +44,13 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
 
   return (
     <div className='swagger-ui'>
-    <div className=" login-page">
-      <h2>Login</h2>
+    <div className="login-page">
+      <h2>Login com usuario e senha do BTP</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
-          <input
+          <input 
+            style={{ width: "100%"}}
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -60,6 +61,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         <div>
           <label>Senha:</label>
           <input
+            style={{ width: "100%"}}
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
