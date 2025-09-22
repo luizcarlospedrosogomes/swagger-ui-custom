@@ -48,5 +48,4 @@ const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
         </div>
     );
 };
-
 export default ApiFileSelector;
