@@ -4,7 +4,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 import path from 'path';
 
 export default defineConfig({
-  base: '/swagger-custom/',
+ // base: '/swagger-custom/',
   plugins: [react(),
     viteStaticCopy({
       targets: [

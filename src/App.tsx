@@ -23,7 +23,7 @@ export function App() {
    console.log('Token atual:', token);
   
   return (
-    <Router basename="/swagger-custom">
+
       <Routes>
         {/* Swagger protegido */}
         <Route
@@ -39,7 +39,7 @@ export function App() {
 
         
       </Routes>
-    </Router>
+    
   );
 }
 
