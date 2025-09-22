@@ -9,7 +9,7 @@ const SwaggerLoader: React.FC = () => {
     const loadSwagger = async () => {
       try {
         // carrega o swagger.json do backend (pasta openapi)
-        const response = await getData({ path: "swagger-custom-files/list", params:{}});
+        const response = await getData({ path: "/swagger-custom-files/list", params:{}});
         setFiles(response.data);
     
       } catch (err) {

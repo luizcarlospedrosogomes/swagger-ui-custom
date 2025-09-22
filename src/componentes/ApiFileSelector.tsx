@@ -15,7 +15,7 @@ const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
 
         const fetchSchema = async () => {
             try {
-                const response = await getData({ path: `swagger-custom-files/file/${selectedFile}`, params: {}});
+                const response = await getData({ path: `/swagger-custom-files/file/${selectedFile}`, params: {}});
                 setSchema(response.data);
                 const url = response.data.servers?.[0]?.url || "";
                 setServerUrl(url);

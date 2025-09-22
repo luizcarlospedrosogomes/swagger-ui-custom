@@ -7,7 +7,7 @@ import { SwaggerServerProvider } from "./context/SwaggerServerContext.tsx";
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
    <SwaggerServerProvider>
-    <HashRouter basename="/swagger-custom">
+    <HashRouter >
       <App />
     </HashRouter>
   </SwaggerServerProvider>
