@@ -4,7 +4,7 @@ import './../swaggerLayout.css'
 import { create, read } from '../services/api';
 import { useSwaggerServer } from '../context/SwaggerServerContext';
 
-
+import packageJson from '../../package.json'; // 
 interface LoginPageProps {
   onLogin: (loginOk: boolean) => void;
 }
@@ -71,6 +71,10 @@ if (!config) return <div>Carregando...</div>;
         
         <button className="btn execute opblock-control__btn" type="submit">Entrar</button>
       </form>
+      {/* 👇 aqui aparece a versão */}
+        <p style={{ marginTop: "1rem", fontSize: "0.9em", color: "#666" }}>
+          Versão: {packageJson.version}
+        </p>
     </div>
     </div>
   );
