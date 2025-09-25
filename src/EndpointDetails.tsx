@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import SchemaTable from './componentes/Properties';
 import RequestBodyViewer from './componentes/RequestBody';
 import ResponsesViewer from './componentes/ResponseBody';
+import ShareButton from './componentes/ShareButton';
 
 
 export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
@@ -98,7 +99,8 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
 
     return (
 
-        <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+        <div style={{ flex: 1, padding: '20px', overflowY: 'auto', position: "relative" }}>
+            <ShareButton />
             {renderDetails()}
         </div>
 

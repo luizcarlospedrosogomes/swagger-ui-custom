@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './../swaggerLayout.css'
 import { create, read } from '../services/api';
 import { useSwaggerServer } from '../context/SwaggerServerContext';
@@ -13,6 +13,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const { config, setConfig } = useSwaggerServer()
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const redirectUrl = params.get('redirect') || '/';
   useEffect(() => {
   read('swagger-custom/swagger-custom-config.json')
     .then(setConfig)
@@ -32,10 +35,11 @@ if (!config) return <div>Carregando...</div>;
       localStorage.setItem('jwtToken', token);
 
       // Chama onLogin para atualizar o estado do App
-      onLogin(true);
+      //onLogin(true);
 
       // Redireciona para o Swagger
-      navigate('/');
+      //navigate('/');
+      onLogin(true, redirectUrl);
     } catch (error) {
       console.error('Erro ao autenticar:', error);
       alert('Usuário ou senha inválidos');

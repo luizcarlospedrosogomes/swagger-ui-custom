@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { EndpointList } from './EndpointList';
 import "./swaggerLayout.css";
@@ -7,7 +7,7 @@ import ResponseViewer from './ResponseViewer';
 import SwaggerLoader from './SwaggerLoader';
 import { useSwaggerServer } from './context/SwaggerServerContext';
 import ApiFileSelector from './componentes/ApiFileSelector';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 
 export function CustomSwagger() {
@@ -15,6 +15,14 @@ export function CustomSwagger() {
     const [apiResponse, setApiResponse] = useState(null);
     const { schema, files, config } = useSwaggerServer(); // pega a spec do contexto
     const navigate = useNavigate();
+    const { method, "*": pathParam } = useParams();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (method && pathParam) {
+            setSelectedEndpoint({ method, path: "/" + pathParam });
+        }
+    }, [method, pathParam]);
 
     if (!files) {
         return (
@@ -25,9 +33,11 @@ export function CustomSwagger() {
         );
     }
 
-    const setEnpointSelected = ({method, path}) => {
+    const setEnpointSelected = ({ method, path }) => {
         setApiResponse(null)
         setSelectedEndpoint({ method, path })
+        const params = new URLSearchParams(location.search);
+        navigate(`/endpoint${path.startsWith("/") ? path : `/${path}`}/${method}?${params.toString()}`);
     }
     console.log(config)
     return (<>
@@ -39,7 +49,7 @@ export function CustomSwagger() {
                 <button
                     className=" btn-destroy opblock opblock-delete opblock opblock-delete " // reutiliza estilo do Swagger
                     onClick={() => {
-                        localStorage.setItem('jwtToken', null);
+                        localStorage.removeItem('jwtToken');
                         navigate('/login');
                     }}
                 >

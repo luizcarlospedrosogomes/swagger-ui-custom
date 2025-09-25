@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSwaggerServer } from "../context/SwaggerServerContext";
 import { getData, read } from "../services/api";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface ApiFileSelectorProps {
     files: string[];
@@ -9,25 +10,44 @@ interface ApiFileSelectorProps {
 const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
     const { schema, setSchema, setServerUrl } = useSwaggerServer();
     const [selectedFile, setSelectedFile] = useState<string | null>(null);
+    const { search } = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const params = new URLSearchParams(search);
+        const fileFromUrl = params.get("file");
+        if (fileFromUrl && files.includes(fileFromUrl)) {
+            setSelectedFile(fileFromUrl);
+        }
+    }, [search, files]);
 
     useEffect(() => {
         if (!selectedFile) return;
 
         const fetchSchema = async () => {
             try {
-                const response = await getData({ path: `/swagger-custom-files/file/${selectedFile}`, params: {}});
+                const response = await getData({ path: `/swagger-custom-files/file/${selectedFile}`, params: {} });
                 setSchema(response.data);
                 const url = response.data.servers?.[0]?.url || "";
                 setServerUrl(url);
             } catch (err) {
                 console.error(err);
             } finally {
-              ;
+                ;
             }
         };
 
         fetchSchema();
     }, [selectedFile, setSchema])
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const fileName = event.target.value;
+        setSelectedFile(fileName)
+        const params = new URLSearchParams(search);
+        params.set("file", fileName);
+
+        navigate({ search: params.toString() }); // mantém rota atual, só troca query
+    };
 
     if (!files || files.length === 0) return null;
     return (
@@ -38,7 +58,7 @@ const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
 
             <select className="api-file-select"
                 value={selectedFile || ""}
-                onChange={e => setSelectedFile(e.target.value)}
+                onChange={handleFileChange}
             >
                 <option value="" disabled>-- Selecione --</option>
                 {files.map(f => (
