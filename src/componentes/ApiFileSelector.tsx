@@ -60,7 +60,7 @@ const ApiFileSelector: React.FC<ApiFileSelectorProps> = ({ files, }) => {
                 value={selectedFile || ""}
                 onChange={handleFileChange}
             >
-                <option value="" disabled>-- Selecione --</option>
+                <option value="" disabled>-- Select --</option>
                 {files.map(f => (
                     <option key={f} value={f}>{f}</option>
                 ))}

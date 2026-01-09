@@ -47,7 +47,7 @@ export function App() {
       <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
 
       <Route
-          path="/endpoint/:path/*"
+          path="/endpoint/:pathParam/:method"
           element={
             <ProtectedRoute token={token}>
               <CustomSwagger />

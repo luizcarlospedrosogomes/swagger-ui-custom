@@ -12,7 +12,7 @@ interface Schema {
   properties: Record<string, SchemaProperty>;
 }
 
-const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setApiResponse: any, schema: Schema, operation: any, path: string, method: string }) => {
+const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setApiResponse: any, schema: Schema, operation: any, path: string, method: string }) => {  
   const initialState = Object.keys(schema.properties).reduce((acc, key) => {
     const type = schema.properties[key].type;
     const name = schema.properties[key].name
@@ -23,7 +23,7 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
     return acc;
   }, {} as Record<string, any>);
 
-  const [q, setQ] = useState(initialState);
+  const [query, setQuery] = useState(initialState);
   const [res, setRes] = useState<any>(null);
 
   const { serverUrl } = useSwaggerServer();
@@ -31,7 +31,7 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, value, checked } = e.target;
-    setQ(prev => ({
+    setQuery(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -41,9 +41,17 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
     e.preventDefault();
     try {
 
-      const params = Object.fromEntries(
-        Object.entries(q).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
-      );
+      const formData = new FormData(e.currentTarget);
+
+    const params = Object.fromEntries(
+      Array.from(formData.entries())
+        .filter(([_, v]) => v !== '' && v !== null)
+        .map(([k, v]) => [k, v.toString()])
+    );
+      if(params['$count']) {
+        params['$count'] = true;
+      }
+      console.log(params)
       const response = await getData({ path: serverUrl + path, params })
 
       setApiResponse(response);
@@ -66,7 +74,7 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
                   type="checkbox"
                   id={name}
                   name={prop.name}
-                  checked={q[prop.name]}
+                  checked={query[prop.name]}
                   onChange={handleChange}
                 />
               ) : (
@@ -75,7 +83,7 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
                   id={name}
                   name={prop.name}
                   onChange={handleChange}
-                  value={q[prop.name] || prop.example}
+                  value={query[prop.name] || prop.example}
                   placeholder={name}
                 />
               )}
