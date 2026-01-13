@@ -16,7 +16,7 @@ export const read = async (path: string) => {
 };
 
 export const getData = async ({ path, params }) => {
-    const token = localStorage.getItem('jwtToken')
+    const token = sessionStorage.getItem('jwtToken');
     const request = {
         method: 'get',
         url: baseUrl + path,

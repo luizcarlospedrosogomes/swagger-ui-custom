@@ -8,6 +8,7 @@ import SwaggerLoader from './SwaggerLoader';
 import { useSwaggerServer } from './context/SwaggerServerContext';
 import ApiFileSelector from './componentes/ApiFileSelector';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import DownloadFile from './componentes/DowloadFile';
 
 
 export function CustomSwagger() {
@@ -17,8 +18,9 @@ export function CustomSwagger() {
     const navigate = useNavigate();
     const { method, pathParam } = useParams();
     const location = useLocation();
-    const [leftWidth, setLeftWidth] = useState(280);
-    const [rightWidth, setRightWidth] = useState(420);
+    const [leftSize, setLeftSize] = useState(1);
+    const [rightSize, setRightSize] = useState(1);
+    const [loadingResponseAPI, setLoadingResponseAPI] = useState(false);
 
     useEffect(() => {
         if (method && pathParam) {
@@ -37,32 +39,35 @@ export function CustomSwagger() {
 
     const setEnpointSelected = ({ method, path }) => {
         setApiResponse(null)
+        setLoadingResponseAPI(false)
         setSelectedEndpoint({ method, path })
         const params = new URLSearchParams(location.search);
         navigate(`/endpoint${path.startsWith("/") ? path : `/${path}`}/${method}?${params.toString()}`);
     }
-    
+
     const startResize = (side: 'left' | 'right', e: React.MouseEvent) => {
-  const startX = e.clientX;
+        const startX = e.clientX;
 
-  const onMove = (ev: MouseEvent) => {
-    const delta = ev.clientX - startX;
+        const onMove = (ev: MouseEvent) => {
+            const delta = ev.clientX - startX;
+            const factor = delta / 300;
 
-    if (side === 'left') {
-      setLeftWidth(w => Math.max(180, w + delta));
-    } else {
-      setRightWidth(w => Math.max(280, w - delta));
-    }
-  };
+            if (side === 'left') {
+                setLeftSize(v => Math.max(0.5, v + factor));
+            } else {
+                setRightSize(v => Math.max(0.5, v - factor));
+            }
+        };
 
-  const onUp = () => {
-    window.removeEventListener('mousemove', onMove);
-    window.removeEventListener('mouseup', onUp);
-  };
+        const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+        };
 
-  window.addEventListener('mousemove', onMove);
-  window.addEventListener('mouseup', onUp);
-};
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+    };
+
 
     return (<>
         <header className="swagger-header swagger-ui">
@@ -72,15 +77,17 @@ export function CustomSwagger() {
 
             <div className="header-right">
                 <ApiFileSelector files={files} />
+                <DownloadFile filePath={config?.filenameDownload || 'swagger.json'} />
                 <button
-                    className="btn-destroy opblock opblock-delete"
+                    className="btn btn-destroy opblock opblock-delete" style={{ marginLeft: "8px" }}
                     onClick={() => {
-                        localStorage.removeItem('jwtToken');
+                        sessionStorage.removeItem('jwtToken');
                         navigate('/login');
                     }}
                 >
                     Logout
                 </button>
+
             </div>
         </header>
 
@@ -93,15 +100,16 @@ export function CustomSwagger() {
             <div className="swagger-layout">
 
                 {/* Coluna 1: Endpoints */}
-                <div className="swagger-column endpoints">
+                <div className="swagger-column endpoints" style={{ flex: 0.5 }}>
                     <EndpointList onSelect={setEnpointSelected} />
                 </div>
                 <div className="column-divider" onMouseDown={(e) => startResize('left', e)}>
-                    
+
                 </div>
                 {/* Coluna 2: Detalhes */}
-                <div className="swagger-column details" style={{ width: leftWidth }}>
+                <div className="swagger-column details" style={{ flex: leftSize }}>
                     <EndpointDetails
+                        setOnLoad={setLoadingResponseAPI}
                         selected={selectedEndpoint}
                         setApiResponse={setApiResponse}
                         swaggerSpec={schema}
@@ -109,13 +117,13 @@ export function CustomSwagger() {
                 </div>
                 {/* Divider direito */}
                 <div className="column-divider" onMouseDown={(e) => startResize('right', e)}>
-                    
+
                 </div>
 
                 {/* Coluna direita */}
                 {/* Coluna 3: Resultado */}
-                <div className="swagger-column results" style={{ width: rightWidth }}>
-                    <ResponseViewer response={apiResponse} />
+                <div className="swagger-column results" style={{ flex: rightSize }}>
+                    <ResponseViewer response={apiResponse} loading={loadingResponseAPI} />
                 </div>
             </div>
         </div>

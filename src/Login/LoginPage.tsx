@@ -31,8 +31,7 @@ if (!config) return <div>Carregando...</div>;
       const response = await create( { path: config.loginUrl, data: JSON.stringify({ username, password })})
       const token = response.data.access_token; // supondo que a API retorne { token: '...' }
 
-      // Salva o token no localStorage
-      localStorage.setItem('jwtToken', token);
+      sessionStorage.setItem('jwtToken', token);
 
       // Chama onLogin para atualizar o estado do App
       //onLogin(true);

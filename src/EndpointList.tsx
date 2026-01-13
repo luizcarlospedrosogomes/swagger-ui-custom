@@ -7,7 +7,6 @@ import { useSwaggerServer } from './context/SwaggerServerContext';
 export function EndpointList({ onSelect }) {
   const [open, setOpen] = useState({});
   const { schema } = useSwaggerServer();
-  console.log(schema)
   const swaggerSpec = schema;
 
   const toggleOpen = (path: string) => {
@@ -24,7 +23,7 @@ export function EndpointList({ onSelect }) {
 
   return (
     <div className="swagger-ui " style={{
-      width: '280px',
+    
       borderRight: '1px solid #e1e4e8',
       padding: '10px 0',
       backgroundColor: '#f7f7f7',

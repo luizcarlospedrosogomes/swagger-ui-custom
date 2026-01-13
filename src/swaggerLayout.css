@@ -7,7 +7,7 @@
 /* Coluna genérica */
 .swagger-column {
   border-right: 1px solid #eaecef;
-  padding: 16px;
+  padding: 5px;
   overflow-y: auto;
   background: #fff;
 }

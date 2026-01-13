@@ -16,11 +16,11 @@ const ProtectedRoute = ({ token, children }: { token: boolean; children: JSX.Ele
 
 export function App() {
   const [token, setToken] = useState<boolean>(
-    () => !!localStorage.getItem('jwtToken')
+    () => !!sessionStorage.getItem('jwtToken')
   );
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('jwtToken'); // ou o nome que você usa
+    const storedToken = sessionStorage.getItem('jwtToken'); // ou o nome que você usa
     if (storedToken) {
       setToken(true); // substitua por algo do token se necessário
     }

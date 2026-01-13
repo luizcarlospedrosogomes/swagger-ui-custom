@@ -12,7 +12,7 @@ interface Schema {
   properties: Record<string, SchemaProperty>;
 }
 
-const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setApiResponse: any, schema: Schema, operation: any, path: string, method: string }) => {  
+const SchemaTable = ({ schema, path,  setApiResponse, setOnLoad }: { setApiResponse: any, schema: Schema, operation: any, path: string, method: string, setOnLoad: any }) => {
   const initialState = Object.keys(schema.properties).reduce((acc, key) => {
     const type = schema.properties[key].type;
     const name = schema.properties[key].name
@@ -24,9 +24,7 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
   }, {} as Record<string, any>);
 
   const [query, setQuery] = useState(initialState);
-  const [res, setRes] = useState<any>(null);
-
-  const { serverUrl } = useSwaggerServer();
+const { serverUrl } = useSwaggerServer();
   if (!schema || !schema.properties) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,20 +41,22 @@ const SchemaTable = ({ schema, operation, path, method, setApiResponse }: { setA
 
       const formData = new FormData(e.currentTarget);
 
-    const params = Object.fromEntries(
-      Array.from(formData.entries())
-        .filter(([_, v]) => v !== '' && v !== null)
-        .map(([k, v]) => [k, v.toString()])
-    );
-      if(params['$count']) {
+      const params = Object.fromEntries(
+        Array.from(formData.entries())
+          .filter(([_, v]) => v !== '' && v !== null)
+          .map(([k, v]) => [k, v.toString()])
+      );
+      if (params['$count']) {
         params['$count'] = true;
       }
-      console.log(params)
+      setOnLoad(true)
       const response = await getData({ path: serverUrl + path, params })
-
+      setOnLoad(false)
       setApiResponse(response);
     } catch (error: any) {
+      console.error('Erro ao enviar a requisição:', error);
       setApiResponse(error);
+      setOnLoad(false);
     }
   };
 

@@ -1,11 +1,15 @@
 import React from "react";
 import { JsonView, allExpanded, darkStyles, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
-const ResponseViewer = ({ response }) => {
+const ResponseViewer = ({ response, loading }) => {
   if (!response) {
     return <div><h3>Resultado</h3><p>Nenhuma requisição feita ainda.</p></div>;
   }
 
+  if(loading) { 
+    return <div><h3>Carregando...</h3></div>;
+  }
+  
   return (
     <div>
       <h3>Resultado</h3>

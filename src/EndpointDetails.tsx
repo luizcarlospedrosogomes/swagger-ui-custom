@@ -6,7 +6,7 @@ import ResponsesViewer from './componentes/ResponseBody';
 import ShareButton from './componentes/ShareButton';
 
 
-export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
+export function EndpointDetails({ selected, swaggerSpec, setApiResponse, setOnLoad }) {
 
     const renderDetails = () => {
         if (!selected) {
@@ -24,7 +24,8 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
         } catch (error) {
             return <p>Selecione uma arquivo</p>;
         }
-
+        console.log(swaggerSpec)
+        console.log(operation)
 
         let ref = null;
         let schema = {}
@@ -32,6 +33,9 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
         if (method === 'post' || method === 'put' || method === 'patch') {
             try {
                 ref = operation.requestBody.content['application/json'].schema.$ref;
+                if(!ref){
+                   ref = operation.requestBody.content['application/json'].schema.properties.data.allOf[0].$ref; 
+                }
                 const refKey = ref.split('/').pop();
                 schemaRequest = swaggerSpec.components.schemas[refKey].properties;
             } catch (error) {
@@ -80,6 +84,7 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse }) {
                             path={path}
                             method={method}
                             setApiResponse={setApiResponse}
+                            setOnLoad={setOnLoad}
                         />
                     )}
 
