@@ -90,7 +90,7 @@ export function EndpointDetails({ selected, swaggerSpec, setApiResponse, setOnLo
 
                     {/* Request body */}
                     {schemaRequest && Object.keys(schemaRequest).length > 0 && (
-                        <RequestBodyViewer schemaRequest={schemaRequest} />
+                        <RequestBodyViewer schemaRequest={schemaRequest} setApiResponse={setApiResponse}  path={path} setOnLoad={setOnLoad} />
                     )}
 
                     {/* Responses */}

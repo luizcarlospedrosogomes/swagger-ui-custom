@@ -210,3 +210,17 @@
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+.swagger-actions.column-width {
+  width: 100%;
+  margin-top: 16px;
+
+  display: flex;
+  justify-content: flex-start;
+
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.swagger-actions.column-width .btn.execute {
+  min-width: 100%;
+}

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import "./swaggerStyles.css"; // 👈 importa seu CSS global
+import { useSwaggerServer } from '../context/SwaggerServerContext';
+import { create, getData } from '../services/api';
 
-const RequestBodyViewer = ({ schemaRequest }) => {
-
-
+const RequestBodyViewer = ({ schemaRequest, setApiResponse, setOnLoad, path }) => {
   const [activeTab, setActiveTab] = useState('properties');
   const [formData, setFormData] = useState({});
   const [jsonText, setJsonText] = useState('{}');
+  const { serverUrl } = useSwaggerServer();
 
   useEffect(() => {
     const initialData = {};
@@ -38,15 +39,15 @@ const RequestBodyViewer = ({ schemaRequest }) => {
     return null;
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     try {
-      const payload = activeTab === 'json'
-        ? JSON.parse(jsonText)
-        : formData;
-      console.log(payload);
-      //  onSubmit?.(payload);
-    } catch {
-      //setJsonError('JSON inválido');
+      const payload = activeTab === 'json' ? JSON.parse(jsonText) : formData;
+      setOnLoad(true)
+      const response = await create({ path: serverUrl+path, data: payload });
+      setOnLoad(false)
+      setApiResponse(response);
+    } catch (error) {
+      console.error(error)
     }
   };
   return (
@@ -120,9 +121,11 @@ const RequestBodyViewer = ({ schemaRequest }) => {
         />
       )}
       {/* ACTION BAR */}
-      <div className="swagger-actions">
-       <button className="btn execute opblock-control__btn"  onClick={handleSubmit}>Enviar</button>
-      </div>
+      {(activeTab === 'form' || activeTab === 'json') && (
+        <div className="swagger-actions column-width">
+          <button className="btn execute opblock-control__btn" onClick={handleSubmit}>Enviar</button>
+        </div>
+      )}
     </div>
   );
 

@@ -24,7 +24,7 @@ const SchemaTable = ({ schema, path,  setApiResponse, setOnLoad }: { setApiRespo
   }, {} as Record<string, any>);
 
   const [query, setQuery] = useState(initialState);
-const { serverUrl } = useSwaggerServer();
+  const { serverUrl } = useSwaggerServer();
   if (!schema || !schema.properties) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
