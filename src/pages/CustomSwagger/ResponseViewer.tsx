@@ -5,7 +5,7 @@ const ResponseViewer = ({ response, loading }) => {
   if (!response) {
     return <div><h3>Resultado</h3><p>Nenhuma requisição feita ainda.</p></div>;
   }
-
+  console.log(response)
   if(loading) { 
     return <div><h3>Carregando...</h3></div>;
   }

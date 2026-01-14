@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { useSwaggerServer } from "./context/SwaggerServerContext";
-import { getData, read } from "./services/api";
+import { useSwaggerServer } from "../context/SwaggerServerContext";
+import { getData, read } from "../services/api";
 
 const SwaggerLoader: React.FC = () => {
   const { setFiles } = useSwaggerServer();;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import 'swagger-ui-react/swagger-ui.css';
-import { useSwaggerServer } from './context/SwaggerServerContext';
+import { useSwaggerServer } from '../../context/SwaggerServerContext';
 
 // ---------------- Sidebar ----------------
 export function EndpointList({ onSelect }) {

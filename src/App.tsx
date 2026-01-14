@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import CustomSwagger from './CustomSwagger';
-import LoginPage from './Login/LoginPage';
+import CustomSwagger from './pages/CustomSwagger/CustomSwagger';
+import LoginPage from './pages/Login/LoginPage';
 import 'swagger-ui-react/swagger-ui.css';
 
 const ProtectedRoute = ({ token, children }: { token: boolean; children: JSX.Element }) => {

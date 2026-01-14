@@ -1,55 +1,88 @@
 import React, { useEffect, useState } from 'react';
-import "./swaggerStyles.css"; // 👈 importa seu CSS global
+import "./swaggerStyles.css";
 import { useSwaggerServer } from '../context/SwaggerServerContext';
-import { create, getData } from '../services/api';
+import { create } from '../services/api';
+import { canRenderAsForm, generateEmptyArray, generateEmptyObject } from '../util/schema';
+import TableArrayPropeties from './TableArrayPropeties';
 
-const RequestBodyViewer = ({ schemaRequest, setApiResponse, setOnLoad, path }) => {
+const RequestBodyViewer = ({ wrappers, setApiResponse, setOnLoad, path }) => {
+  const { serverUrl } = useSwaggerServer();
+
   const [activeTab, setActiveTab] = useState('properties');
   const [formData, setFormData] = useState({});
   const [jsonText, setJsonText] = useState('{}');
-  const { serverUrl } = useSwaggerServer();
+
+  const canShowForm =
+    wrappers.length > 0 &&
+    wrappers.every(w => canRenderAsForm(w.innerSchema));
 
   useEffect(() => {
-    const initialData = {};
-    Object.keys(schemaRequest).forEach((key) => {
-      initialData[key] = '';
+    const initial = {};
+      wrappers.forEach(({ wrapperName, wrapperSchema, innerSchema }) => {
+    if (wrapperSchema.type === 'array') {
+      initial[wrapperName] = generateEmptyArray(innerSchema);
+    } else {
+      initial[wrapperName] = generateEmptyObject(innerSchema);
+    }
+  });
+
+  setFormData(initial);
+  setJsonText(JSON.stringify(initial, null, 2));
+  }, [wrappers]);
+
+
+  const setFieldValue = (wrapper, path, value) => {
+    setFormData(prev => {
+      const updated = structuredClone(prev);
+      let ref = updated[wrapper];
+
+      path.forEach((p, idx) => {
+        if (idx === path.length - 1) {
+          ref[p] = value;
+        } else {
+          ref = ref[p];
+        }
+      });
+
+      setJsonText(JSON.stringify(updated, null, 2));
+      return updated;
     });
-
-    setFormData(initialData);
-    setJsonText(JSON.stringify(initialData, null, 2));
-  }, [schemaRequest]);
-
-  const handleFormChange = (key, value) => {
-    const updated = { ...formData, [key]: value };
-    setFormData(updated);
-    setJsonText(JSON.stringify(updated, null, 2));
   };
 
   const handleJsonChange = (value) => {
     setJsonText(value);
     try {
-      const parsed = JSON.parse(value);
-      setFormData(parsed);
+      setFormData(JSON.parse(value));
     } catch {
-      // JSON inválido → ignora sync
+      // ignore invalid json
     }
   };
-
-  if (!schemaRequest || Object.keys(schemaRequest).length === 0) {
-    return null;
-  }
 
   const handleSubmit = async () => {
     try {
-      const payload = activeTab === 'json' ? JSON.parse(jsonText) : formData;
-      setOnLoad(true)
-      const response = await create({ path: serverUrl+path, data: payload });
-      setOnLoad(false)
+      const payload =
+        activeTab === 'json'
+          ? JSON.parse(jsonText)
+          : formData;
+
+      setOnLoad(true);
+      const response = await create({
+        path: serverUrl + path,
+        data: payload
+      });
       setApiResponse(response);
     } catch (error) {
-      console.error(error)
+      setApiResponse(error);
+    } finally {
+      setOnLoad(false);
     }
   };
+
+  if (!wrappers?.length) return null;
+
+  // =========================
+  // RENDER
+  // =========================
   return (
     <div className="swagger-section">
       <h3 className="swagger-section-title">Request Body</h3>
@@ -62,46 +95,71 @@ const RequestBodyViewer = ({ schemaRequest, setApiResponse, setOnLoad, path }) =
         >
           Properties
         </button>
-        <button
-          className={activeTab === 'form' ? 'btn active' : 'btn'}
-          onClick={() => setActiveTab('form')}
-        >
-          Form
-        </button>
+
+        {canShowForm && (
+          <button
+            className={activeTab === 'form' ? 'btn active' : 'btn'}
+            onClick={() => setActiveTab('form')}
+          >
+            Form
+          </button>
+        )}
 
         <button
-          className={activeTab === 'json' ? ' btn active' : ' btn'}
+          className={activeTab === 'json' ? 'btn active' : 'btn'}
           onClick={() => setActiveTab('json')}
         >
           JSON
         </button>
       </div>
 
-      {/* FORM TAB */}
-      {activeTab === 'form' && (
-        <div className="swagger-form">
-          {Object.entries(schemaRequest).map(([key, prop]) => (
-            <div key={key} className="swagger-form-field">
-              <label>
-                {key}
-                {schemaRequest.required?.includes(key) && ' *'}
-              </label>
-
-              <input
-                type="text"
-                placeholder={prop.description || key}
-                value={formData[key] ?? ''}
-                maxLength={prop.maxLength}
-                onChange={(e) => handleFormChange(key, e.target.value)}
-              />
-
-
-            </div>
-          ))}
-        </div>
+      {/* PROPERTIES */}
+      {activeTab === 'properties' && (
+        <textarea
+          className="swagger-code-block"
+          value={JSON.stringify(wrappers, null, 2)}
+          rows={20}
+          readOnly
+        />
       )}
 
-      {/* JSON TAB */}
+      {/* FORM */}
+      {activeTab === 'form' && canShowForm && (
+  <div className="swagger-form">
+    {wrappers.map(({ wrapperName, wrapperSchema, innerSchema }) => {
+      if (wrapperSchema.type === 'array') {
+        return (
+          <fieldset key={wrapperName}>
+            <legend>{wrapperName}</legend>
+            {TableArrayPropeties(wrapperName, innerSchema, formData, setFormData, setJsonText)}
+          </fieldset>
+        );
+      }
+
+      return (
+        <fieldset key={wrapperName}>
+          <legend>{wrapperName}</legend>
+
+          {Object.entries(innerSchema.properties).map(([key, prop]) => (
+            <div key={key} className="swagger-form-field">
+              <label>{key}</label>
+              <input
+                type="text"
+                value={formData[wrapperName]?.[key] ?? ''}
+                onChange={e =>
+                  setFieldValue(wrapperName, [key], e.target.value)
+                }
+              />
+            </div>
+          ))}
+        </fieldset>
+      );
+    })}
+  </div>
+)}
+
+
+      {/* JSON */}
       {activeTab === 'json' && (
         <textarea
           className="swagger-code-block"
@@ -111,24 +169,19 @@ const RequestBodyViewer = ({ schemaRequest, setApiResponse, setOnLoad, path }) =
         />
       )}
 
-      {/* JSON TAB */}
-      {activeTab === 'properties' && (
-        <textarea
-          className="swagger-code-block"
-          value={schemaRequest && JSON.stringify(schemaRequest, null, 2)}
-          rows={20}
-          onChange={(e) => handleJsonChange(e.target.value)}
-        />
-      )}
-      {/* ACTION BAR */}
+      {/* ACTION */}
       {(activeTab === 'form' || activeTab === 'json') && (
         <div className="swagger-actions column-width">
-          <button className="btn execute opblock-control__btn" onClick={handleSubmit}>Enviar</button>
+          <button
+            className="btn execute opblock-control__btn"
+            onClick={handleSubmit}
+          >
+            Enviar
+          </button>
         </div>
       )}
     </div>
   );
-
 };
 
 export default RequestBodyViewer;

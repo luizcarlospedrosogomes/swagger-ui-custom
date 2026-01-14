@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import './../swaggerLayout.css'
-import { create, read } from '../services/api';
-import { useSwaggerServer } from '../context/SwaggerServerContext';
+import '../CustomSwagger/swaggerLayout.css'
+import { create, read } from '../../services/api';
+import { useSwaggerServer } from '../../context/SwaggerServerContext';
 
-import packageJson from '../../package.json'; // 
+import packageJson from '../../../package.json'; // 
 interface LoginPageProps {
   onLogin: (loginOk: boolean) => void;
 }
 const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const { config, setConfig } = useSwaggerServer()
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const redirectUrl = params.get('redirect') || '/';
+  const { config, setConfig } = useSwaggerServer();
   useEffect(() => {
   read('swagger-custom/swagger-custom-config.json')
     .then(setConfig)
@@ -29,16 +24,9 @@ if (!config) return <div>Carregando...</div>;
     try {
       // Chama a API de login e recebe o token
       const response = await create( { path: config.loginUrl, data: JSON.stringify({ username, password })})
-      const token = response.data.access_token; // supondo que a API retorne { token: '...' }
-
+      const token = response.data.access_token; 
       sessionStorage.setItem('jwtToken', token);
-
-      // Chama onLogin para atualizar o estado do App
-      //onLogin(true);
-
-      // Redireciona para o Swagger
-      //navigate('/');
-      onLogin(true, redirectUrl);
+      onLogin(true);
     } catch (error) {
       console.error('Erro ao autenticar:', error);
       alert('Usuário ou senha inválidos');
@@ -76,7 +64,7 @@ if (!config) return <div>Carregando...</div>;
       </form>
       {/* 👇 aqui aparece a versão */}
         <p style={{ marginTop: "1rem", fontSize: "0.9em", color: "#666" }}>
-          Versão: {packageJson.version}
+          Versão: {packageJson.version} BETA
         </p>
     </div>
     </div>

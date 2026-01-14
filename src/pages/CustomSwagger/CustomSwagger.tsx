@@ -4,11 +4,11 @@ import { EndpointList } from './EndpointList';
 import "./swaggerLayout.css";
 import EndpointDetails from './EndpointDetails';
 import ResponseViewer from './ResponseViewer';
-import SwaggerLoader from './SwaggerLoader';
-import { useSwaggerServer } from './context/SwaggerServerContext';
-import ApiFileSelector from './componentes/ApiFileSelector';
+import SwaggerLoader from '../../componentes/SwaggerLoader';
+import { useSwaggerServer } from '../../context/SwaggerServerContext';
+import ApiFileSelector from '../../componentes/ApiFileSelector';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import DownloadFile from './componentes/DowloadFile';
+import DownloadFile from '../../componentes/DowloadFile';
 
 
 export function CustomSwagger() {

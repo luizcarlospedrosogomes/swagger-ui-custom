@@ -27,14 +27,17 @@ export const getData = async ({ path, params }) => {
 }
 
 export const create = async ({ path, data }) => {
+    const token = sessionStorage.getItem('jwtToken');
     const request = {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
+           
         },
         url: baseUrl + path,
         data
     }
+    request.headers['Authorization'] = `Bearer ${token}`;
     return await axios(request);
 }
 
